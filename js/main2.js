@@ -2,7 +2,8 @@
 let routeMap = {
     items: {
         map: undefined,
-        markerOrigin: undefined,
+        markerOrigin:undefined,
+        ubicationDetail: undefined,
         ubicationDetailOrigin: undefined
     },
 
@@ -15,24 +16,13 @@ let routeMap = {
             streetViewControl: false
         });
         let inputOrigin = document.getElementById('origin');
-        let autocompleteOrigin = new google.maps.places.Autocomplete(inputOrigin);
-        autocompleteOrigin.bindTo('bounds', routeMap.items.map);
         routeMap.items.ubicationDetailOrigin = new google.maps.InfoWindow();
-        routeMap.items.markerOrigin = routeMap.createMarker(routeMap.items.map);
-
-        routeMap.listener(autocompleteOrigin, routeMap.items.ubicationDetailOrigin, routeMap.items.markerOrigin);
-
         let inputDestination = document.getElementById('destination');
-        let autocompleteDestination = new google.maps.places.Autocomplete(inputDestination);
-        autocompleteDestination.bindTo('bounds', routeMap.items.map);
-        let ubicationDetailDestination = new google.maps.InfoWindow();
-        let markerDestination = routeMap.createMarker(routeMap.items.map);
-
-        routeMap.listener(autocompleteDestination, ubicationDetailDestination, markerDestination);
+        routeMap.autocomplete(inputOrigin);
+        routeMap.autocomplete(inputDestination);
 
         /* Mi ubicación actual */
         document.getElementById("findMe").addEventListener("click", routeMap.find);
-        /* Ruta */
         let directionsService = new google.maps.DirectionsService;
         let directionsDisplay = new google.maps.DirectionsRenderer;
 
@@ -40,6 +30,14 @@ let routeMap = {
              routeMap.traceRoute(directionsService, directionsDisplay) });
 
         directionsDisplay.setMap(routeMap.items.map);
+    },
+
+    autocomplete: function (input){
+        let autocomplete= new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo('bounds', routeMap.items.map);
+        routeMap.items.ubicationDetail = new google.maps.InfoWindow();
+        routeMap.items.markerOrigin= routeMap.createMarker(routeMap.items.map);
+        routeMap.listener(autocomplete, routeMap.items.ubicationDetail, routeMap.items.markerOrigin);
     },
 
     listener: function (autocomplete, infoWindows, marker) {
@@ -78,6 +76,7 @@ let routeMap = {
 
     setUbication: function (place, infoWindows, marker) {
         if (!place.geometry) {
+            // Error si no se encuentra el lugar indicado
             window.alert("We cannot find the place: '" + place.name + "'");
             return;
         }
