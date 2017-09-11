@@ -2,6 +2,8 @@
 let routeMap = {
     items: {
         map: undefined,
+        markerOrigin: undefined,
+        ubicationDetailOrigin: undefined
     },
 
     init: function () {
@@ -15,10 +17,10 @@ let routeMap = {
         let inputOrigin = document.getElementById('origin');
         let autocompleteOrigin = new google.maps.places.Autocomplete(inputOrigin);
         autocompleteOrigin.bindTo('bounds', routeMap.items.map);
-        let ubicationDetailOrigin = new google.maps.InfoWindow();
-        let markerOrigin = routeMap.createMarker(routeMap.items.map);
+        routeMap.items.ubicationDetailOrigin = new google.maps.InfoWindow();
+        routeMap.items.markerOrigin = routeMap.createMarker(routeMap.items.map);
 
-        routeMap.listener(autocompleteOrigin, ubicationDetailOrigin, markerOrigin);
+        routeMap.listener(autocompleteOrigin, routeMap.items.ubicationDetailOrigin, routeMap.items.markerOrigin);
 
         let inputDestination = document.getElementById('destination');
         let autocompleteDestination = new google.maps.places.Autocomplete(inputDestination);
@@ -64,23 +66,21 @@ let routeMap = {
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
 
-        markerOrigen.setPosition(new google.maps.LatLng(latitude, longitude));
+        routeMap.items.markerOrigin.setPosition(new google.maps.LatLng(latitude, longitude));
         routeMap.items.map.setCenter({ lat: latitude, lng: longitude });
         routeMap.items.map.setZoom(17);
 
-        markerOrigen.setVisible(true);
+        routeMap.items.markerOrigin.setVisible(true);
 
-        ubicationDetailOrigin.setContent('<div><strong>My current Ubication</strong><br>');
-        ubicationDetailOrigin.open(routeMap.items.map, markerOrigen);
+        routeMap.items.ubicationDetailOrigin.setContent('<div><strong>My current Ubication</strong><br>');
+        routeMap.items.ubicationDetailOrigin.open(routeMap.items.map, routeMap.items.markerOrigin);
     },
 
     setUbication: function (place, infoWindows, marker) {
         if (!place.geometry) {
-            // Error si no encuentra el lugar indicado
             window.alert("We cannot find the place: '" + place.name + "'");
             return;
         }
-        // If the place has a geometry, then present it on a map.
         if (place.geometry.viewport) {
             routeMap.items.map.fitBounds(place.geometry.viewport);
         } else {
@@ -141,7 +141,6 @@ let routeMap = {
                 });
         }
     },
-
     errorRoute : function(){
         alert("You didn't enter a valid origin and/or destination");
     }
